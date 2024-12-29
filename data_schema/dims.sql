@@ -37,3 +37,6 @@ create table [tokens_dim] (
     token_name varchar(100),
     primary key(token_id)
 )
+
+/* no dimension created for winners. Also usd_price included in fact table should either
+   be part of tokens_dim or dropped altogether */

@@ -13,3 +13,5 @@ create table [transactions_fact] (
     foreign key (date_id) references date_dim(date_id)
     foreign key (token_id) references tokens_dim(token_id)
 )
+
+-- winner id should be included and usd_price removed

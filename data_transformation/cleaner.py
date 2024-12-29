@@ -7,13 +7,44 @@ transactions = pd.read_csv(
 
 # remove useless features
 transactions.drop(
-    ["asset.collection.short_description", "asset.permalink"],
+    ["asset.collection.short_description", "asset.permalink","payment_token.usd_price"],
     axis=1,
     inplace=True
 )
 
-# remove Nans
-transactions.dropna(inplace=True)
+# Sort by asset_id and transaction_date in descending order
+transactions_sorted = transactions.sort_values(by=["asset.id", "sales_datetime"], ascending=[True, False])
+
+# Identify the most recent collection name for each asset_id
+most_recent_collection = (
+    transactions_sorted.groupby("asset.id", as_index=False).first()[["asset.id", "asset.collection.name"]]
+)
+
+# Merge the most recent names back into the original dataframe
+transactions = transactions.merge(most_recent_collection, on="asset.id", suffixes=("", "_most_recent"))
+
+# Replace collection_name with the most recent name where necessary
+transactions["asset.collection.name"] = transactions["asset.collection.name_most_recent"]
+transactions.drop(columns=["asset.collection.name_most_recent"], inplace=True)
+
+
+# Identify the most recent name for each asset_id
+most_recent_name = (
+    transactions_sorted.groupby("asset.id", as_index=False).first()[["asset.id", "asset.name"]]
+)
+
+# Merge the most recent names back into the original dataframe
+transactions = transactions.merge(most_recent_name, on="asset.id", suffixes=("", "_most_recent"))
+
+# Replace asset.name with the most recent name where necessary
+transactions["asset.name"] = transactions["asset.name_most_recent"]
+transactions.drop(columns=["asset.name_most_recent"], inplace=True)
+
+
+
+# Fill nas, for string columns, using the value "Unknown"
+string_columns = ["asset.name", "asset.collection.name", "payment_token.name", "seller.user.username"]
+transactions[string_columns] = transactions[string_columns].fillna("Unknown")
 
 # create date features
 transactions["day_name"] = transactions["sales_datetime"].dt.day_name()

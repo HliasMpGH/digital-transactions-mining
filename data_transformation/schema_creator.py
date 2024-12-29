@@ -44,3 +44,8 @@ tokens_dim.to_csv("tokens_dim.csv", index=False)
 
 # To create the asset dimension, collection dim should be initialized in the db
 # as it requires an auto-incremented foreign key
+
+'''
+No dimension has been created for the winners.
+
+'''
