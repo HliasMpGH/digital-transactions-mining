@@ -7,10 +7,12 @@ transactions = pd.read_csv(
 
 # remove useless features
 transactions.drop(
-    ["asset.collection.short_description", "asset.permalink","payment_token.usd_price"],
+    ["asset.collection.short_description", "asset.permalink", "payment_token.usd_price"],
     axis=1,
     inplace=True
 )
+
+''' Handle case of multiple collection names on same asset ids '''
 
 # Sort by asset_id and transaction_date in descending order
 transactions_sorted = transactions.sort_values(by=["asset.id", "sales_datetime"], ascending=[True, False])
@@ -28,6 +30,8 @@ transactions["asset.collection.name"] = transactions["asset.collection.name_most
 transactions.drop(columns=["asset.collection.name_most_recent"], inplace=True)
 
 
+''' Handle case of multiple asset names on same assets ids '''
+
 # Identify the most recent name for each asset_id
 most_recent_name = (
     transactions_sorted.groupby("asset.id", as_index=False).first()[["asset.id", "asset.name"]]
@@ -40,6 +44,37 @@ transactions = transactions.merge(most_recent_name, on="asset.id", suffixes=("",
 transactions["asset.name"] = transactions["asset.name_most_recent"]
 transactions.drop(columns=["asset.name_most_recent"], inplace=True)
 
+
+''' Handle case of multiple seller names on same wallet addresses '''
+
+# Sort by seller address and transaction date in descending order
+transactions_sorted = transactions.sort_values(by=["seller.address", "sales_datetime"], ascending=[True, False])
+
+# Identify the most recent name for each seller address
+most_recent_name = (
+    transactions_sorted.groupby("seller.address", as_index=False).first()[["seller.address", "seller.user.username"]]
+)
+
+# Merge the most recent names back into the original dataframe
+transactions = transactions.merge(most_recent_name, on="seller.address", how='left', suffixes=("", "_most_recent"))
+
+# Replace seller.user.username with the most recent name where necessary
+transactions["seller.user.username"] = transactions["seller.user.username_most_recent"]
+transactions.drop(columns=["seller.user.username_most_recent"], inplace=True)
+
+''' Handle case of multiple categories on same assets ids '''
+
+# Identify the most recent category for each asset_id
+most_recent_category = (
+    transactions_sorted.groupby("asset.id", as_index=False).first()[["asset.id", "Category"]]
+)
+
+# Merge the most recent category back into the original dataframe
+transactions = transactions.merge(most_recent_category, on="asset.id", suffixes=("", "_most_recent"))
+
+# Replace Category with the most recent category where necessary
+transactions["Category"] = transactions["Category_most_recent"]
+transactions.drop(columns=["Category_most_recent"], inplace=True)
 
 
 # Fill nas, for string columns, using the value "Unknown"
@@ -65,7 +100,6 @@ transactions.rename({
     "asset.collection.name": "collection_name",
     "total_price": "wei_price",
     "payment_token.name": "payment_token_name",
-    "payment_token.usd_price": "usd_price",
     "asset.num_sales": "quantity",
     "seller.address": "seller_address",
     "seller.user.username": "seller_username",
