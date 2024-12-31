@@ -1,12 +1,12 @@
 create table [sellers_dim] (
-    seller_id int IDENTITY(1,1),
+    seller_id int,
     seller_address varchar(100),
-    seller_name varchar(100),
+    seller_name nvarchar(100),
     primary key (seller_id)
 )
 
 create table [dates_dim] (
-    date_id int IDENTITY(1,1),
+    date_id int,
     full_date date,
     day_name varchar(20),
     day_week_number int,
@@ -18,14 +18,14 @@ create table [dates_dim] (
 )
 
 create table [collections_dim] (
-    collection_id int IDENTITY(1,1),
-    collection_name varchar(100),
+    collection_id int,
+    collection_name nvarchar(200),
     primary key (collection_id)
 )
 
 create table [assets_dim] (
     asset_id int, -- id is already provided
-    asset_name varchar(100),
+    asset_name varchar(300),
     asset_category varchar(100),
     collection_id int,
     primary key (asset_id),
@@ -33,10 +33,13 @@ create table [assets_dim] (
 )
 
 create table [tokens_dim] (
-    token_id int IDENTITY(1,1),
+    token_id int,
     token_name varchar(100),
     primary key(token_id)
 )
 
-/* no dimension created for winners. Also usd_price included in fact table should either
-   be part of tokens_dim or dropped altogether */
+create table [buyers_dim] (
+    buyer_id int,
+    buyer_address varchar(100),
+    primary key (buyer_id)
+)
