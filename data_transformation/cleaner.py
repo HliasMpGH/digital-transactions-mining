@@ -67,17 +67,23 @@ transactions.drop(columns=["seller.user.username_most_recent"], inplace=True)
 # Sort by username and transaction date in descending order
 transactions_sorted = transactions.sort_values(by=["seller.user.username", "sales_datetime"], ascending=[True, False])
 
-# Identify the most recent address for each username
+# Identify the most recent address for each valid username
 most_recent_address = (
-    transactions_sorted.groupby("seller.user.username", as_index=False).first()[["seller.user.username", "seller.address"]]
+    transactions_sorted[transactions_sorted['seller.user.username'].notna()]  # Exclude NaN usernames
+    .groupby("seller.user.username", as_index=False)
+    .first()[["seller.user.username", "seller.address"]]
 )
 
 # Merge the most recent addresses back into the original dataframe
-transactions = transactions.merge(most_recent_address, on="seller.user.username",how= 'left', suffixes=("", "_most_recent"))
+transactions = transactions.merge(most_recent_address, on="seller.user.username", how="left", suffixes=("", "_most_recent"))
 
 # Replace seller.address with the most recent address where necessary
-transactions["seller.address"] = transactions["seller.address_most_recent"]
+valid_mask = transactions['seller.user.username'].notna() & transactions['seller.address_most_recent'].notna()
+transactions.loc[valid_mask, 'seller.address'] = transactions.loc[valid_mask, 'seller.address_most_recent']
+
+# Drop the temporary column
 transactions.drop(columns=["seller.address_most_recent"], inplace=True)
+
 
 
 ''' Handle case of multiple categories on same assets ids '''
