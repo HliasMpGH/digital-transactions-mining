@@ -1,7 +1,10 @@
 import pandas as pd
 import cleaner as _
 
-transactions = pd.read_csv("nft_transactions_cleaned.csv")
+transactions = pd.read_csv(
+    "nft_transactions_cleaned.csv",
+    dtype={"wei_price": float}
+)
 
 # define the features of the dimensions
 sellers_columns = ["seller_address", "seller_username"]

@@ -3,7 +3,8 @@ import pandas as pd
 ''' Read csv '''
 transactions = pd.read_csv(
     "nft_transactions_2019_2021.csv",
-    parse_dates = ["sales_datetime"]
+    parse_dates = ["sales_datetime"],
+    dtype={"asset.collection.short_description": str}
 )
 
 ''' Remove useless features'''
