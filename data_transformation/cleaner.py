@@ -112,6 +112,7 @@ transactions[string_columns] = transactions[string_columns].fillna("Unknown")
 # create date features
 transactions["day_name"] = transactions["sales_datetime"].dt.day_name()
 transactions["day_of_week"] = transactions["sales_datetime"].dt.dayofweek
+transactions["day_of_month"] = transactions["sales_datetime"].dt.day
 transactions["month_name"] = transactions["sales_datetime"].dt.month_name()
 transactions["month_number"] = transactions["sales_datetime"].dt.month
 transactions["year"] = transactions["sales_datetime"].dt.year

@@ -9,6 +9,7 @@ dates_columns = [
     "full_date",
     "day_name",
     "day_of_week",
+    "day_of_month",
     "month_name",
     "month_number",
     "year",

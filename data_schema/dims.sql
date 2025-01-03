@@ -10,6 +10,7 @@ create table [dates_dim] (
     full_date date,
     day_name varchar(20),
     day_week_number int,
+    day_month_number int,
     month_name varchar(20),
     month_number int,
     year_number int,
